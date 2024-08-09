@@ -1,17 +1,9 @@
-from .modeling import TimeSeriesModel, ARIMAModel, VARModel, LSTMModel
-
 class TimeSeriesForecaster:
-    """Provides forecasting capabilities using time-series models"""
-    def __init__(self, model_type='arima', **kwargs):
-        if model_type == 'arima':
-            self.model = ARIMAModel(**kwargs)
-        elif model_type == 'var':
-            self.model = VARModel(**kwargs)
-        elif model_type == 'lstm':
-            self.model = LSTMModel(**kwargs)
+    def __init__(self, model):
+        self.model = model
 
-    def fit(self, X_train, y_train):
-        self.model.fit(X_train, y_train)
+    def fit(self, X, y):
+        self.model.fit(X, y)
 
-    def predict(self, X_test, horizon=1):
-        return self.model.predict(X_test, horizon=horizon)
+    def predict(self, X, horizon=1):
+        return self.model.predict(X, horizon)

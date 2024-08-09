@@ -1,20 +1,15 @@
-import numpy as np
-from statsmodels.tsa.stattools import grangercausalityttest
-from statsmodels.tsa.vector_ar.var_model import VAR
+from causalimpact import CausalImpact
+from dowhy import CausalModel
 
 class CausalAnalysis:
-    """Provides causal inference and intervention analysis for time-series data"""
-    def granger_causality(self, X, y, maxlag=3):
-        """Perform Granger causality test"""
-        return grangercausalityttest(y, X, maxlag=maxlag)
+    def causal_impact_analysis(self, time_series, intervention_time, control_series=None):
+        """Perform causal impact analysis using CausalImpact"""
+        ci = CausalImpact(time_series, intervention_time, control_series)
+        return ci.summary(), ci.plot()
 
-    def svar_analysis(self, data, lag_order=1):
-        """Perform structural vector autoregression (SVAR) analysis"""
-        model = VAR(data)
-        results = model.fit(lag_order)
-        return results.fevd()
-
-    def causal_impact(self, time_series, intervention_time, control_series=None):
-        """Perform causal impact analysis"""
-        # Implement causal impact analysis using the CausalImpact library
-        pass
+    def causal_model_analysis(self, data, treatment, outcome, common_causes=None):
+        """Perform causal model analysis using DoWhy"""
+        causal_model = CausalModel(data=data, treatment=treatment, outcome=outcome, common_causes=common_causes)
+        identified_estimand = causal_model.identify_effect()
+        estimate = causal_model.estimate_effect(identified_estimand, method_name="backdoor")
+        return estimate
