@@ -1,0 +1,11 @@
+   from dowhy import CausalModel
+ModuleNotFoundError: No module named 'dowhy' - modeling.py 
+
+# Step 1: Install the causalimpact package from the alternative repository
+!pip install git+https://github.com/jamalsenouci/causalimpact.git
+
+
+!pip install dowhy
+!pip install  tsfresh 
+optuna
+pip install dask[dataframe]

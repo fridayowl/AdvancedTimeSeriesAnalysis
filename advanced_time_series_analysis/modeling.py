@@ -4,7 +4,7 @@ from statsmodels.tsa.vector_ar.var_model import VAR
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
-from fbprophet import Prophet
+from prophet import Prophet
 
 class TimeSeriesModel:
     """Base class for all time-series models"""
@@ -20,34 +20,36 @@ class TimeSeriesModel:
 
 
 class ARIMAModel(TimeSeriesModel):
-    """ARIMA time-series model"""
-    def __init__(self, p=1, d=1, q=1):
-        super().__init__(model_type='arima', p=p, d=d, q=q)
-        self.model = ARIMA(order=(p, d, q))
-
-    def fit(self, X, y):
-        self.model = self.model.fit(y)
-
-    def predict(self, X, horizon=1):
-        forecast = self.model.forecast(steps=horizon)
-        return forecast
-
-
-class VARModel(TimeSeriesModel):
-    """Vector Autoregression (VAR) time-series model"""
-    def __init__(self, lag_order=1):
-        super().__init__(model_type='var', lag_order=lag_order)
+    """ARIMA model for time-series forecasting"""
+    def __init__(self, p=1, d=1, q=1, **kwargs):
+        super().__init__(model_type='arima', **kwargs)
+        self.order = (p, d, q)
         self.model = None
 
-    def fit(self, X, y=None):
-        self.model = VAR(X)
-        self.model = self.model.fit(self.fit_params['lag_order'])
+    def fit(self, X, y):
+        """Fit the ARIMA model to the data"""
+        endog = y  # ARIMA is typically for univariate series
+        exog = X if X is not None else None  # ARIMA can take exogenous variables
+        self.model = ARIMA(endog, exog=exog, order=self.order)
+        self.model = self.model.fit()
 
-    def predict(self, X, horizon=1):
-        forecast = self.model.forecast(self.model.y, steps=horizon)
+    def predict(self, X=None, horizon=1):
+        """Make a forecast"""
+        forecast = self.model.forecast(steps=horizon, exog=X)
         return forecast
+    
+class VARModel:
+    def __init__(self, lag_order):
+        self.lag_order = lag_order
+        self.model = None
 
+    def fit(self, X):
+        self.model = VAR(X).fit(self.lag_order)
 
+    def predict(self, X, horizon):
+        # Ensure you pass the correct data for forecasting
+        forecast = self.model.forecast(X.values[-self.lag_order:], steps=horizon)
+        return forecast   
 class LSTMModel(TimeSeriesModel):
     """LSTM-based time-series model"""
     def __init__(self, units=50, dropout=0.2):
